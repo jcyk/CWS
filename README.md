@@ -19,7 +19,7 @@ E.g., To see the best result on PKU dataset reported in our paper, first generat
 Thanks for those excellent computing tools: Theano, Numpy, Gensim
 
 ##Author: 
-Deng Cai. Any question, feel free to contact me through [my email](thisisjcykcd@gmail.com)
+Deng Cai. Any question, feel free to contact me through [my email](mailto:thisisjcykcd@gmail.com)
 
 ##Citation:
 If you find this code useful, please cite our paper.
