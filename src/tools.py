@@ -102,6 +102,7 @@ class TopkHeap(object):
                 heapq.heapreplace(self.data,x)
     def Topk(self):
         return self.data
+    
     def max(self):
         return max(self.data)
 

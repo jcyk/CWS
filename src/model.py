@@ -239,7 +239,7 @@ def build_model(tparams,options):
     return x,dropout,y,yy,y_mask,yy_mask,cost
     
 def train_model(
-    max_epoches = 30,
+    max_epochs = 30,
     optimizer = adadelta,
     batch_size = 256,
     ndims = 100,
@@ -292,8 +292,8 @@ def train_model(
             ss_grad = prepare_adagrad(tparams)
     T_x,T_dropout,T_y,T_yy,T_y_mask,T_yy_mask,T_cost = build_model(tparams,options)
     weight_decay = (tparams['U']**2).sum()+(tparams['Wy']**2).sum()
-    weight_decay*=regularization
-    T_cost+=weight_decay
+    weight_decay *= regularization
+    T_cost += weight_decay
 
     if optimizer is adadelta:
         T_updates = optimizer(ms_up,ms_grad,tparams,T_cost)
@@ -320,7 +320,7 @@ def train_model(
     
     print 'Training model'
     start_time = time.time()
-    for eidx in xrange(max_epoches):
+    for eidx in xrange(max_epochs):
         batches_idx = get_minibatches_idx(seqs,tot_lens,batch_size,shuffle=shuffle_data)
         for batch_idx in batches_idx:
             X = [seqs[t]  for t in batch_idx]
