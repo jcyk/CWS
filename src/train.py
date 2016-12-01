@@ -50,8 +50,6 @@ if __name__ == "__main__":
                   train_file = '../data/pku_train_all',
                   dev_file = '../data/pku_test',
                   lr = 0.2,
-                  pre_training = '../w2v/char_vecs_50',
-                  early_update = True,
-                  use_word_embed = True
+                  pre_training = '../w2v/c_vecs_50',
                   )
 
