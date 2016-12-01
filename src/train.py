@@ -2,8 +2,11 @@ import sys
 from model import train_model
 from model import adadelta,adagrad,sgd
 
+
+#python train.py -d --dynet-weight-decay 0.
+
 if __name__ == "__main__":
-      assert len(sys.argv)==2 and (sys.argv[1]=="-d" or sys.argv[1]=="-t"), "-d dynet / -t theano"
+      assert (sys.argv[1]=="-d" or sys.argv[1]=="-t"), "-d dynet / -t theano"
       if sys.argv[1]=='-t': 
             print 'using theano'
             train_model(
@@ -47,6 +50,8 @@ if __name__ == "__main__":
                   train_file = '../data/pku_train_all',
                   dev_file = '../data/pku_test',
                   lr = 0.2,
-                  pre_training = '../w2v/c_vecs_50'
+                  pre_training = '../w2v/char_vecs_50',
+                  early_update = True,
+                  use_word_embed = True
                   )
 

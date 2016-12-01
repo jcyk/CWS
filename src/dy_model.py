@@ -58,7 +58,7 @@ class Agenda(object): # maintain the top K hightest scored partially segmented s
 class CWS (object):
     def __init__(self,Cemb,character_idx_map,options):
         model = dy.Model()
-        self.trainer = dy.AdagradTrainer(model,options['lr']) #we use Adagrad
+        self.trainer = dy.AdagradTrainer(model,options['lr']) # we use Adagrad
         self.params = self.initParams(model,Cemb,options)
         self.options = options
         self.model = model
@@ -85,9 +85,9 @@ class CWS (object):
         params['update_gate_W'] = []
         params['update_gate_b'] = []
         
-        params['word_score_U'] = model.add_parameters(options['nhiddens'])
-        params['predict_W'] = model.add_parameters((options['nhiddens'],options['nhiddens']))
-        params['predict_b'] = model.add_parameters(options['nhiddens'])
+        params['word_score_U'] = model.add_parameters(options['ndims'])
+        params['predict_W'] = model.add_parameters((options['ndims'],options['nhiddens']))
+        params['predict_b'] = model.add_parameters(options['ndims'])
         for wlen in xrange(1,options['max_word_len']+1):
             params['reset_gate_W'].append(model.add_parameters((wlen*options['ndims'],wlen*options['ndims'])))
             params['reset_gate_b'].append(model.add_parameters(wlen*options['ndims']))
@@ -99,7 +99,7 @@ class CWS (object):
         return params
     
     def renew_cg(self):
-        # renew the compute graph for every signle instance
+        # renew the compute graph for every single instance
         dy.renew_cg()
 
         param_exprs = dict()
@@ -122,17 +122,17 @@ class CWS (object):
           
         chars = dy.concatenate(char_seq)
         reset_gate = dy.logistic(self.param_exprs['rgW%d'%wlen] * chars + self.param_exprs['rgb%d'%wlen])
-        comb = dy.concatenate([dy.tanh(self.param_exprs['cW%d'%wlen] * dy.cwise_multiply(reset_gate,chars) + self.param_exprs['cb%d'%wlen]),chars])
+        comb = dy.concatenate([dy.tanh(self.param_exprs['cW%d'%wlen] * dy.cmult(reset_gate,chars) + self.param_exprs['cb%d'%wlen]),chars])
         update_logits = self.param_exprs['ugW%d'%wlen] * comb + self.param_exprs['ugb%d'%wlen]
         
-        update_gate = dy.transpose(dy.concatenate_cols([dy.softmax(update_logits[i*(wlen+1):(i+1)*(wlen+1)]) for i in xrange(self.options['ndims'])]))
+        update_gate = dy.transpose(dy.concatenate_cols([dy.softmax(dy.pickrange(update_logits,i*(wlen+1),(i+1)*(wlen+1))) for i in xrange(self.options['ndims'])]))
         
         # The following implementation of Softmax fucntion is not safe, but faster...
         #exp_update_logits = dy.exp(dy.reshape(update_logits,(self.options['ndims'],wlen+1)))
         #update_gate = dy.cdiv(exp_update_logits, dy.concatenate_cols([dy.sum_cols(exp_update_logits)] *(wlen+1)))
         #assert (not np.isnan(update_gate.npvalue()).any())
 
-        word = dy.sum_cols(dy.cwise_multiply(update_gate,dy.reshape(comb,(self.options['ndims'],wlen+1))))
+        word = dy.sum_cols(dy.cmult(update_gate,dy.reshape(comb,(self.options['ndims'],wlen+1))))
         return word
 
     def beam_search(self, char_seq, truth = None, mu =0.): 
@@ -143,12 +143,12 @@ class CWS (object):
         start_agenda.push(Sentence(score=init_score.scalar_value(),score_expr=init_score,LSTMState =init_state, y= init_y , prevState = None, wlen=None))
         agenda = [start_agenda]
 
-        for idx, _ in enumerate(char_seq,1): #from left to right, character by character
+        for idx, _ in enumerate(char_seq,1): # from left to right, character by character
             now = Agenda(self.options['beam_size'])
-            for wlen in xrange(1,min(idx,self.options['max_word_len'])+1):
-                word = self.word_repr(char_seq[idx-wlen:idx]) # generate candidate word vectors
+            for wlen in xrange(1,min(idx,self.options['max_word_len'])+1): # generate candidate word vectors
+                word = self.word_repr(char_seq[idx-wlen:idx])
                 word_score = dy.dot_product(word,self.param_exprs['U'])
-                for sent in agenda[idx-wlen]: #join segmentation
+                for sent in agenda[idx-wlen]: # join segmentation
                     if truth is not None:
                         margin = dy.scalarInput(mu*wlen if truth[idx-1]!=wlen else 0.)
                         score = margin + sent.score_expr + dy.dot_product(sent.y, word) + word_score 
