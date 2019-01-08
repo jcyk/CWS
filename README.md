@@ -5,7 +5,7 @@ This code implements the word segmentation algorithm proposed in the following p
 
 Deng Cai and Hai Zhao, Neural Word Segmentation Learing for Chinese. ACL 2016.
 
-Lastest update！ We improved the system, the coressponding paper is going to appear at ACL2017, with source code at [this repo](https://github.com/jcyk/greedyCWS)
+### Lastest update! We improved the system, the corresponding paper was accepted to ACL2017, with source code at [this repo](https://github.com/jcyk/greedyCWS).
 
 Update! a faster implementation using dynet as backend is now available.
 ```python train.py -d``` to use the new (dynet based) version.
